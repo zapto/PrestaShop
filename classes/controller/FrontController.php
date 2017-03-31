@@ -827,7 +827,7 @@ class FrontControllerCore extends Controller
                                 $this->restrictedCountry = Country::GEOLOC_FORBIDDEN;
                             } elseif (Configuration::get('PS_GEOLOCATION_BEHAVIOR') == _PS_GEOLOCATION_NO_ORDER_) {
                                 $this->restrictedCountry = Country::GEOLOC_CATALOG_MODE;
-                                $this->warning[] = sprintf($this->l('You cannot place a new order from your country (%s).'), $record->country->name);
+                                $this->warning[] = $this->trans('You cannot place a new order from your country (%s).', array($record->country->name), 'Shop.Notifications.Warning');
                             }
                         } else {
                             $hasBeenSet = !isset($this->context->cookie->iso_code_country);
@@ -854,7 +854,15 @@ class FrontControllerCore extends Controller
                     $this->restrictedCountry = Country::GEOLOC_FORBIDDEN;
                 } elseif (Configuration::get('PS_GEOLOCATION_NA_BEHAVIOR') == _PS_GEOLOCATION_NO_ORDER_ && !FrontController::isInWhitelistForGeolocation()) {
                     $this->restrictedCountry = Country::GEOLOC_CATALOG_MODE;
-                    $this->warning[] = sprintf($this->l('You cannot place a new order from your country (%s).'), (isset($record->country->name) && $record->country->name) ? $record->country->name : $this->l('Undefined'));
+                    $countryName = $this->trans('Undefined', array(), 'Shop.Theme');
+                    if (isset($record->country->name) && $record->country->name) {
+                        $countryName = $record->country->name;
+                    }
+                    $this->warning[] = $this->trans(
+                        'You cannot place a new order from your country (%s).',
+                        array($countryName),
+                        'Shop.Notifications.Warning'
+                    );
                 }
             }
         }
@@ -1464,7 +1472,7 @@ class FrontControllerCore extends Controller
         );
         foreach ($p as $page_name) {
             $index = str_replace('-', '_', $page_name);
-            $pages[$index] = $this->context->link->getPageLink($page_name, true);
+            $pages[$index] = $this->context->link->getPageLink($page_name, $this->ssl);
         }
         $pages['register'] = $this->context->link->getPageLink('authentication', true, null, array('create_account' => '1'));
         $pages['order_login'] = $this->context->link->getPageLink('order', true, null, array('login' => '1'));
